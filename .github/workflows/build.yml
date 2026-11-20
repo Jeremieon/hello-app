@@ -35,3 +35,23 @@ jobs:
           push: true
           build-args: APP_VERSION=${{ github.sha }}
           tags: ghcr.io/jeremieon/hello-app:${{ github.sha }}
+
+  update-gitops:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the config repo
+        uses: actions/checkout@v4
+        with:
+          repository: Jeremieon/homelab-gitops
+          ssh-key: ${{ secrets.GITOPS_DEPLOY_KEY }}
+          path: gitops
+
+      - name: Point the Deployment at the new image
+        run: |
+          cd gitops
+          sed -i "s#ghcr.io/jeremieon/hello-app:.*#ghcr.io/jeremieon/hello-app:${GITHUB_SHA}#" apps/hello-app/hello-app.yaml
+          git config user.name "hello-app CI"
+          git config user.email "hello-app-ci@users.noreply.github.com"
+          git commit -am "hello-app: deploy ${GITHUB_SHA::7}"
+          git push

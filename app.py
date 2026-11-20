@@ -8,7 +8,7 @@ class Handler(BaseHTTPRequestHandler):
         if self.path == "/healthz":
             body = "ok\n"
         else:
-            body = f"hello-app (blue) version {VERSION} from {socket.gethostname()}\n"
+            body = f"hello-app (green) version {VERSION} from {socket.gethostname()}\n"
         self.send_response(200)
         self.send_header("Content-Type", "text/plain")
         self.end_headers()
